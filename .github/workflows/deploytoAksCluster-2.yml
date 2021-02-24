@@ -1,0 +1,51 @@
+on: [push]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    
+    - uses: azure/docker-login@v1
+      with:
+        login-server: victorcrud.azurecr.io
+        username: ${{ secrets.acr_victorcrud_username }}
+        password: ${{ secrets.acr_victorcrud_password }}
+    
+    - name: Build and push image to ACR
+      id: build-image
+      run: |
+        docker build "$GITHUB_WORKSPACE/" -f  "DockerFile" -t victorcrud.azurecr.io/victorcluster:${{ github.sha }} --label dockerfile-path=DockerFile
+        docker push victorcrud.azurecr.io/victorcluster:${{ github.sha }}
+    
+    - uses: azure/k8s-set-context@v1
+      with:
+         kubeconfig: ${{ secrets.aks_victorcluster_kubeConfig }}
+      id: login
+    
+    - name: Create namespace
+      run: |
+        namespacePresent=`kubectl get namespace | grep victorcluster27a5 | wc -l`
+        if [ $namespacePresent -eq 0 ]
+        then
+            echo `kubectl create namespace victorcluster27a5`
+        fi
+
+    - uses: azure/k8s-create-secret@v1
+      with:
+        namespace: victorcluster27a5
+        container-registry-url: victorcrud.azurecr.io
+        container-registry-username: ${{ secrets.acr_victorcrud_username }}
+        container-registry-password: ${{ secrets.acr_victorcrud_password }}
+        secret-name: victorclustedockerauth
+       
+    - uses: azure/k8s-deploy@v1.2
+      with:
+        namespace: victorcluster27a5
+        manifests: |
+          manifests/deployment-2.yml
+          manifests/service-2.yml
+          manifests/ingress-2.yml
+        images: |
+          victorcrud.azurecr.io/victorcluster:${{ github.sha }}
+        imagepullsecrets: |
+          victorclustedockerauth
