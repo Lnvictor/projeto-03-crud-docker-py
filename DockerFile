@@ -1,0 +1,15 @@
+FROM python:3.9.1
+
+FROM python:3.9.1
+
+
+RUN apt-get update && apt-get install -y --no-install-recommends apt-utils \
+    unixodbc-dev \
+    unixodbc \
+    libpq-dev 
+
+RUN pip install flask python-decouple sqlalchemy pyodbc marshmallow-sqlalchemy
+
+ADD * app/
+
+CMD [ "python", "app/api/product_api.py" ]
