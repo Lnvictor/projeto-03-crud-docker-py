@@ -12,4 +12,4 @@ RUN pip install flask python-decouple sqlalchemy pyodbc marshmallow-sqlalchemy
 
 ADD * app/
 
-CMD [ "python", "app/api/product_api.py" ]
+CMD [ "python", "./app/api/product_api.py" ]
