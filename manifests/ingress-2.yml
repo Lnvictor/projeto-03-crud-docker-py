@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+    name: "victorcluster-5da8"
+    labels:
+        app: "victorcluster-5da8"
+    annotations:
+        kubernetes.io/ingress.class: addon-http-application-routing
+spec:
+    rules:
+        - host: victorcluster27a5-victorcluster-5da8.b957aba6b4b04d14919c.westus.aksapp.io
+          http:
+            paths:
+            - path: /
+              backend:
+                serviceName: "victorcluster-5da8"
+                servicePort: 8080
