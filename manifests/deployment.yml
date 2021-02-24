@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: "victorcluster-8e95"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "victorcluster-8e95"
+  template:
+    metadata:
+      labels:
+        app: "victorcluster-8e95"
+    spec:
+      containers:
+        - name: "victorcluster-8e95"
+          image: "victorcrud.azurecr.io/victorcluster"
+          ports:
+          - containerPort: 8080
